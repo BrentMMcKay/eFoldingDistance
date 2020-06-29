@@ -153,7 +153,7 @@ def binAndFilter( siteList, timeStart=1800,timeEnd=2017,timeStep=1,highBandPass=
     
         if highBandPass:
             # Run temps through a high pass filter to eliminate long term low frequency trends
-            filteredTemps = bandPassFilter(binnedTimes,binnedTemps) 
+            filteredTemps = bandPassFilter(binnedTimes,binnedTemps,cutoff=10*timeStep) 
         else:
             filteredTemps = binnedTemps
     
