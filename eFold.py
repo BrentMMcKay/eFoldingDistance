@@ -103,7 +103,7 @@ def bandPassFilter(times,temps,cutoff=10,btype='highpass'):
 
 ###############################################
 def binAndFilter( siteList, timeStart=1800,timeEnd=2017,timeStep=1,highBandPass=True,\
-                  replaceNaN=True,replaceNaNDivisor=12,outFid='' ):
+                  bandPassCutoff=10,replaceNaN=True,replaceNaNDivisor=12,outFid='' ):
     '''
     Bin and filter temperatures for a list of sites. 
     
@@ -116,6 +116,7 @@ def binAndFilter( siteList, timeStart=1800,timeEnd=2017,timeStep=1,highBandPass=
     @param timeEnd: Trailing edge of last bin
     @param timeStep: Width of each bin
     @param highBandPass: Set to True if a high band pass filter should be used to filter out low frequency variations
+    @param bandPassCutoff: Cutoff for the band pass filter; units is number of timesteps
     @param replaceNaN: Replace all missing temp readings. Defaults to True
     @param replaceNaNDivisor: Replace all missing temp readings with the mean value of readings with the same index modulus when index is divided by this value. Default is 12, which would replace each NaN with the mean of the measurements from the same month, if the readings are one month apart.
     @param outFid: If specified, filtered data and siteList will be saved in a pickle file with 
@@ -153,7 +154,7 @@ def binAndFilter( siteList, timeStart=1800,timeEnd=2017,timeStep=1,highBandPass=
     
         if highBandPass:
             # Run temps through a high pass filter to eliminate long term low frequency trends
-            filteredTemps = bandPassFilter(binnedTimes,binnedTemps,cutoff=10*timeStep) 
+            filteredTemps = bandPassFilter(binnedTimes,binnedTemps,cutoff=bandPassCutoff*timeStep) 
         else:
             filteredTemps = binnedTemps
     
