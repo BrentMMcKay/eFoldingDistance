@@ -86,7 +86,7 @@ def bandPassFilter(times,temps,cutoff=10,btype='highpass'):
         return filteredTemps
 
     # Set the padding for smaller sites
-    elif len(goodTemps) < 6:
+    elif len(goodTemps) < 7:
         pad = 0
     else:
         pad = 6
