@@ -7,6 +7,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cf
 import cartopy
 import matplotlib.pyplot as plt
+import matplotlib
 import math
 import sys
 import warnings
@@ -357,7 +358,9 @@ def calcEFold( siteList, filteredArray, minPeriods=8, distanceThreshold=10000 ):
 def plotMap( latitudes, longitudes, values, 
              map_crs=ccrs.Robinson(),
              data_crs=ccrs.PlateCarree(),
-             plotTitle='', dataLabel='', dotSize=10, colorMap='RdPu' ):
+             colormapMin=0.01, colormapMax=0.01,
+             plotTitle='', dataLabel='', dotSize=10, colorMap='RdPu',
+             plotFilename='', plotFormat='png'):
     '''
     Plot a dataset onto a world map
 
@@ -370,6 +373,8 @@ def plotMap( latitudes, longitudes, values,
     @param colorMap: A matplotlib colormap name. 
            See http://matplotlib.org/3.1.1/gallery/color/colormap_reference.html 
            for a list of choices.
+    @param plotFilename: If not empty, save the plot to this filename rather than displaying it
+    @param plotFormat: Format of the saved plot
 
     '''
 
@@ -382,18 +387,29 @@ def plotMap( latitudes, longitudes, values,
     ax.add_feature(cf.BORDERS)
     ax.add_feature(cf.COASTLINE)
     colors = values
+    if colormapMin < 0:
+        colormapMin = min(colors)
+    if colormapMax < 0:
+        colormapMax = max(colors)
+    print(colormapMin, colormapMax)
 
     # Put the sites on the map with color based on eFoldDistance or r2
-    ax.scatter(longitudes,latitudes,s=dotSize,c=colors,cmap=colorMap,transform=data_crs)
+    ax.scatter(longitudes,latitudes,s=dotSize,c=colors,cmap=colorMap,transform=data_crs,norm=matplotlib.colors.LogNorm(colormapMin, colormapMax))
+    #ax.scatter(longitudes,latitudes,s=dotSize,c=colors,cmap=colorMap,transform=data_crs,norm=matplotlib.colors.LogNorm(min(colors),max(colors)))
 
     # Create a colorbar legend
-    sm = plt.cm.ScalarMappable(cmap=colorMap,norm=plt.Normalize(min(colors),max(colors)))
+    sm = plt.cm.ScalarMappable(cmap=colorMap,norm=matplotlib.colors.LogNorm(colormapMin, colormapMax))
+    #sm = plt.cm.ScalarMappable(cmap=colorMap,norm=matplotlib.colors.LogNorm(min(colors),max(colors)))
     sm._A = []
     cbar = plt.colorbar(sm,ax=ax)
 
     cbar.set_label(dataLabel)
 
-    # Title and show the plot
+    # Title the plot
     plt.title(plotTitle)
-    plt.show()
 
+    # Save or show the plot
+    if plotFilename == '':
+        plt.show()
+    else:
+        plt.savefig(plotFilename,format=plotFormat)
