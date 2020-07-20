@@ -7,7 +7,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cf
 import cartopy
 import matplotlib.pyplot as plt
-import matplotlib
+import matplotlib.colors as colors
 import math
 import sys
 import warnings
@@ -358,7 +358,7 @@ def calcEFold( siteList, filteredArray, minPeriods=8, distanceThreshold=10000 ):
 def plotMap( latitudes, longitudes, values, 
              map_crs=ccrs.Robinson(),
              data_crs=ccrs.PlateCarree(),
-             colormapMin=0.01, colormapMax=0.01,
+             colormapMin=0.01, colormapMax=0.01,norm=colors.LogNorm,
              plotTitle='', dataLabel='', dotSize=10, colorMap='RdPu',
              plotFilename='', plotFormat='png'):
     '''
@@ -387,19 +387,16 @@ def plotMap( latitudes, longitudes, values,
     ax.add_feature(cf.BORDERS)
     ax.add_feature(cf.COASTLINE)
     colors = values
-    if colormapMin < 0:
+    if colormapMin < 0.1:
         colormapMin = min(colors)
-    if colormapMax < 0:
+    if colormapMax < 0.1:
         colormapMax = max(colors)
-    print(colormapMin, colormapMax)
 
     # Put the sites on the map with color based on eFoldDistance or r2
-    ax.scatter(longitudes,latitudes,s=dotSize,c=colors,cmap=colorMap,transform=data_crs,norm=matplotlib.colors.LogNorm(colormapMin, colormapMax))
-    #ax.scatter(longitudes,latitudes,s=dotSize,c=colors,cmap=colorMap,transform=data_crs,norm=matplotlib.colors.LogNorm(min(colors),max(colors)))
+    ax.scatter(longitudes,latitudes,s=dotSize,c=colors,cmap=colorMap,transform=data_crs,norm=norm(colormapMin, colormapMax))
 
     # Create a colorbar legend
-    sm = plt.cm.ScalarMappable(cmap=colorMap,norm=matplotlib.colors.LogNorm(colormapMin, colormapMax))
-    #sm = plt.cm.ScalarMappable(cmap=colorMap,norm=matplotlib.colors.LogNorm(min(colors),max(colors)))
+    sm = plt.cm.ScalarMappable(cmap=colorMap,norm=norm(colormapMin, colormapMax))
     sm._A = []
     cbar = plt.colorbar(sm,ax=ax)
 
